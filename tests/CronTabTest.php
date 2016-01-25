@@ -374,4 +374,18 @@ class CronTabTest extends TestCase
         $this->assertContains($jobs[0]['command'], $cronTabContent);
         $this->assertContains($jobs[1]['command'], $cronTabContent);
     }
-} 
+
+    /**
+     * @depends testApplyFile
+     */
+    public function testFailApplyFile()
+    {
+        $filename = $this->getTestFilePath() . DIRECTORY_SEPARATOR . 'testfile.tmp';
+        file_put_contents($filename, '* 2 * * * * ls --help');
+
+        $cronTab = new CronTab();
+
+        $this->setExpectedException('yii\base\Exception', 'Failure to setup crontab from file');
+        $cronTab->applyFile($filename);
+    }
+}

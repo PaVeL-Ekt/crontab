@@ -151,14 +151,18 @@ class CronTab extends Component
      * @param string $filename file name.
      * @return static self reference.
      * @throws InvalidParamException on failure.
+     * @throws Exception on failure to setup crontab.
      */
     public function applyFile($filename)
     {
         if (!file_exists($filename)) {
             throw new InvalidParamException("File '{$filename}' does not exist.");
         }
-        $command = $this->binPath . ' < ' . escapeshellarg($filename);
-        exec($command, $outputLines);
+        $command = $this->binPath . ' < ' . escapeshellarg($filename) . ' 2>&1';
+        exec($command, $outputLines, $exitCode);
+        if ($exitCode !== 0) {
+            throw new Exception("Failure to setup crontab from file '{$filename}': " . implode("\n", $outputLines));
+        }
         return $this;
     }
 
